@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+coverage/
+.expo/
+.expo-shared/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# Local secrets & runtime state — never commit these
+.env
+.env.*
+!.env.example
+*.local
+.betapouch-bridge-token
+*.betapouch-backup
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/

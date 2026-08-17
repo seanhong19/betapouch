@@ -1,0 +1,25 @@
+{
+  "name": "betapouch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first, local-first expense and receipt tracker for web and mobile.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/**\" build && pnpm --filter @betapouch/web build",
+    "dev": "pnpm --filter @betapouch/web dev",
+    "dev:mobile": "pnpm --filter @betapouch/mobile start",
+    "bridge": "node tools/agent-bridge/server.mjs",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "check": "pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
