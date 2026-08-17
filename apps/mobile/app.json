@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "BetaPouch",
+    "slug": "betapouch",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "betapouch",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "backgroundColor": "#fcfcfb",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.betapouch.client",
+      "infoPlist": {
+        "NSCameraUsageDescription": "BetaPouch uses the camera so you can photograph receipts. Photos stay encrypted on this device and are never uploaded.",
+        "NSPhotoLibraryUsageDescription": "BetaPouch reads the receipt images you pick. They stay encrypted on this device.",
+        "NSFaceIDUsageDescription": "Unlock your encrypted vault with Face ID instead of typing your passphrase.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "app.betapouch.client",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1a19"
+      },
+      "permissions": ["android.permission.CAMERA"],
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "BetaPouch uses the camera so you can photograph receipts. Photos stay on this device.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "BetaPouch reads the receipt images you pick. They stay on this device."
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "privacyNote": "BetaPouch has no server. All data is stored encrypted on the device."
+    }
+  }
+}
