@@ -9,6 +9,7 @@ import {
   type PaymentMethod,
 } from "@betapouch/core";
 import { useEffect, useState, type FormEvent } from "react";
+import { CurrencyPicker } from "./CurrencyPicker";
 
 /**
  * The one place an expense is edited, whether it came from a camera, a file,
@@ -156,14 +157,15 @@ export function ExpenseForm({
               placeholder="0.00"
               required
             />
-            <input
-              className="field w-20 uppercase"
-              value={currencyCode}
-              onChange={(event) => setCurrencyCode(event.target.value.slice(0, 3))}
-              aria-label="Currency"
-              maxLength={3}
-              pattern="[A-Za-z]{3}"
-            />
+            <div className="w-28 shrink-0">
+              <CurrencyPicker
+                value={currencyCode}
+                onChange={setCurrencyCode}
+                label={undefined}
+                id="currency"
+                compact
+              />
+            </div>
           </div>
         </div>
 

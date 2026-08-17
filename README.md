@@ -18,6 +18,10 @@ nowhere for it to be held.
 - **Ask an AI, optionally, on your terms.** Bring your own API key, point it at a
   local model, or bridge to an agent CLI you already run. Off by default.
 - **Type it in.** The manual form is a first-class path, not a fallback.
+- **Your currency, not USD.** The base currency is detected from your device
+  locale on first run, and the picker is searchable by country name — type
+  "Malaysia" rather than knowing it is MYR. Zero-decimal currencies (JPY, KRW,
+  VND) and three-decimal ones (KWD, BHD) are handled correctly.
 - **See where the money went** — a dashboard with a headline total, period
   comparison, spending over time, and ranked breakdowns by category and merchant.
 - **Full history** filtered by date, category, and free text.
@@ -109,7 +113,8 @@ This is a working v0.1 built in one pass. Honest about what is not done:
   or a vision model if you configure one.
 - **PDFs are stored, not read.** No PDF text extraction yet.
 - **No currency conversion**, deliberately — FX rates mean a network call keyed
-  to your spending. Totals are grouped per currency instead.
+  to your spending. Each currency is totalled separately, the dashboard leads
+  with your base currency, and the rest are disclosed rather than hidden.
 - **Attachments are not in the encrypted backup**, only records. Images stay in
   the device store.
 - **No multi-device sync.** Adding it without a server is possible but is a

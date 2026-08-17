@@ -13,6 +13,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useRef, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { CurrencyPicker } from "../components/CurrencyPicker";
 import { Button, Card, Field, Heading, Muted, Notice } from "../components/ui";
 import { activeProviderConfig, extractWithAi, resolveProvider } from "../lib/ai";
 import { useExpenses } from "../lib/expenses";
@@ -240,13 +241,25 @@ export function CaptureScreen({ onDone }: { onDone: () => void }) {
             }}
             placeholder="Where did you spend?"
           />
-          <Field
-            label={`Amount (${draft.currency ?? settings.baseCurrency})`}
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-          />
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <View style={{ flex: 2 }}>
+              <Field
+                label="Amount"
+                value={amount}
+                onChangeText={setAmount}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <CurrencyPicker
+                label="Currency"
+                value={draft.currency ?? settings.baseCurrency}
+                locale={settings.locale}
+                onChange={(code) => setDraft((current) => ({ ...current, currency: code }))}
+              />
+            </View>
+          </View>
 
           <View style={{ gap: 6 }}>
             <Text style={{ color: theme.textSecondary, fontSize: 12, fontWeight: "500" }}>

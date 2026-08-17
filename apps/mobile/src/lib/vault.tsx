@@ -2,6 +2,8 @@ import {
   changePassphrase,
   createVault,
   defaultSettings,
+  detectCurrency,
+  detectLocale,
   unlockVault,
   WrongPassphraseError,
   type Settings,
@@ -88,7 +90,11 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const afterUnlock = useCallback(async (opened: UnlockedVault) => {
     const stored = await loadSettings(opened);
-    const effective = stored ?? defaultSettings();
+    // First run: seed the currency and formatting from the device locale.
+    // Defaulting the whole world to USD is a small insult; this makes the
+    // picker a confirmation rather than a chore.
+    const effective =
+      stored ?? { ...defaultSettings(), baseCurrency: detectCurrency(), locale: detectLocale() };
     if (!stored) await saveSettings(opened, effective);
     setSettings(effective);
     setVault(opened);

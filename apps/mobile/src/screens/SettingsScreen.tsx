@@ -9,6 +9,7 @@ import {
 import { File, Paths } from "expo-file-system";
 import { useState } from "react";
 import { Pressable, ScrollView, Switch, Text, View } from "react-native";
+import { CurrencyPicker } from "../components/CurrencyPicker";
 import { Button, Card, Field, Heading, Muted, Notice } from "../components/ui";
 import { destroyEverything, loadSecrets, saveSecrets } from "../lib/db";
 import { useExpenses } from "../lib/expenses";
@@ -73,12 +74,11 @@ export function SettingsScreen() {
 
       <Card style={{ gap: 14 }}>
         <Text style={{ color: theme.textPrimary, fontWeight: "600" }}>General</Text>
-        <Field
+        <CurrencyPicker
           label="Base currency"
           value={settings.baseCurrency}
-          autoCapitalize="characters"
-          maxLength={3}
-          onChangeText={(value) => void updateSettings({ baseCurrency: value.toUpperCase().slice(0, 3) })}
+          locale={settings.locale}
+          onChange={(code) => void updateSettings({ baseCurrency: code })}
         />
         <Field
           label="Language & formatting"

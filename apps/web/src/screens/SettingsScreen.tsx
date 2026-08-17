@@ -12,6 +12,7 @@ import {
   type AiProviderKind,
 } from "@betapouch/core";
 import { useEffect, useRef, useState } from "react";
+import { CurrencyPicker } from "../components/CurrencyPicker";
 import { destroyEverything, estimateUsage, loadSecrets, saveSecrets } from "../lib/db";
 import { useExpenses } from "../lib/expenses";
 import { useVault } from "../lib/vault";
@@ -54,12 +55,13 @@ export function SettingsScreen() {
 
       <Section title="General">
         <Row label="Base currency" hint="Used for the dashboard headline and new expenses.">
-          <input
-            className="field w-28 uppercase"
-            value={settings.baseCurrency}
-            maxLength={3}
-            onChange={(event) => void updateSettings({ baseCurrency: event.target.value.toUpperCase().slice(0, 3) })}
-          />
+          <div className="w-64">
+            <CurrencyPicker
+              value={settings.baseCurrency}
+              locale={settings.locale}
+              onChange={(code) => void updateSettings({ baseCurrency: code })}
+            />
+          </div>
         </Row>
         <Row label="Language & formatting">
           <input

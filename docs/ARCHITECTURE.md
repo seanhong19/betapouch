@@ -168,6 +168,21 @@ about spacing.
 keyed to your spending dates. Totals are grouped per currency, the base currency
 leads, and the rest are listed alongside with an explicit note.
 
+Which currency leads is `pickDisplayCurrency`, and it deliberately does *not*
+rank by total: minor units from different currencies are not comparable
+quantities, so "largest total" once made 3,960 EUR-cents beat 2,919 USD-cents.
+It prefers the user's base currency, falling back to the one used most *often* —
+a count being the only figure that means the same thing in every currency.
+
+**Currency selection.** `COUNTRY_CURRENCY` maps ISO 3166 → ISO 4217; everything
+else (localised currency names, symbols, country names) comes from `Intl` at
+runtime, so the picker speaks the user's language without a shipped translation
+table. Every lookup degrades to an English table and then to the bare code,
+because `Intl.DisplayNames` is missing on some Hermes builds and a picker that
+throws is worse than one that says "SGD". On first run the base currency is
+inferred from the device locale — defaulting the whole world to USD makes the
+app feel foreign to most of its users.
+
 ## Testing
 
 92 tests in `packages/core`, 9 in `apps/web`. They concentrate on the places

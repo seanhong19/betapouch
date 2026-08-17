@@ -9,3 +9,4 @@ export * from "./crypto/vault.js";
 export * from "./receipt/parse.js";
 export * from "./receipt/categorize.js";
 export * from "./ai/index.js";
+export * from "./currency.js";
