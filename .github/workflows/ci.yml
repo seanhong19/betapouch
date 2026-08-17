@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Test
+        run: pnpm -r test
+
+      - name: Build web
+        run: pnpm --filter @betapouch/web build
+
+      # The app must never gain a third-party runtime dependency: any such
+      # call would leak that a receipt is being scanned. One known-inert
+      # string is allowed through — tesseract.js carries a CDN URL as its
+      # built-in default, and src/lib/ocr.test.ts proves we always override
+      # it with same-origin paths so it is never reached.
+      - name: Assert no third-party origins in the bundle
+        run: |
+          found=$(grep -rhoIE "https?://[a-zA-Z0-9._/-]+" apps/web/dist/assets \
+            | sort -u \
+            | grep -vE "^https://cdn\.jsdelivr\.net/npm/tesseract\.js$" \
+            | grep -E "(cdn|unpkg|jsdelivr|fonts\.googleapis|googletagmanager|google-analytics|sentry|segment)" || true)
+          if [ -n "$found" ]; then
+            echo "::error::Unexpected third-party origin in the web bundle:"
+            echo "$found"
+            exit 1
+          fi
+          echo "No unexpected third-party origins found."

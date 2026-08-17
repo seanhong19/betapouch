@@ -10,9 +10,17 @@ import { createWorker, type Worker } from "tesseract.js";
  * and the CSP can keep `connect-src` free of any extra host.
  */
 
-const WORKER_PATH = "/ocr/worker.min.js";
-const CORE_PATH = "/ocr/core";
-const LANG_PATH = "/ocr/lang";
+/**
+ * Exported so a test can assert they are all same-origin. tesseract.js keeps a
+ * CDN URL as its built-in default, which survives into the bundle as an inert
+ * string; the guarantee is that we always pass these three explicitly, so that
+ * default is never reached.
+ */
+export const OCR_PATHS = {
+  workerPath: "/ocr/worker.min.js",
+  corePath: "/ocr/core",
+  langPath: "/ocr/lang",
+} as const;
 
 export interface OcrResult {
   text: string;
@@ -25,9 +33,7 @@ let workerPromise: Promise<Worker> | null = null;
 async function getWorker(language: string, onProgress?: (ratio: number) => void): Promise<Worker> {
   if (!workerPromise) {
     workerPromise = createWorker(language, 1, {
-      workerPath: WORKER_PATH,
-      corePath: CORE_PATH,
-      langPath: LANG_PATH,
+      ...OCR_PATHS,
       // The language file is bundled uncompressed-on-disk as .gz; tesseract
       // handles the gzip itself.
       gzip: true,
