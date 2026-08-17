@@ -39,7 +39,7 @@ built artefact — Vite aliases it, Metro is pointed at the workspace root.
 The reason is drift. "What does this receipt say" and "how is money stored" are
 exactly the questions you cannot afford to answer differently on two platforms,
 and a compiled package invites a stale copy. Source-level sharing also means the
-92 tests in core cover both apps' behaviour rather than only the web one's.
+core test suite covers both apps' behaviour rather than only the web one's.
 
 ## Money never touches a float
 
@@ -185,7 +185,7 @@ app feel foreign to most of its users.
 
 ## Testing
 
-92 tests in `packages/core`, 9 in `apps/web`. They concentrate on the places
+125 tests in `packages/core`, 11 in `apps/web`. They concentrate on the places
 where being wrong is expensive:
 
 - money parsing round-trips, including zero-decimal currencies and the classic
@@ -197,6 +197,9 @@ where being wrong is expensive:
 - redaction keeping prices while removing PII, and not mislabelling a non-Luhn
   number as a card
 - endpoint policy: https required, loopback exempt, no credentials in URLs
+- the currency catalogue, including that its non-standard minor units agree
+  with the money module — a mismatch there would store amounts at the wrong
+  scale — and search-by-country-name
 - CSV formula-injection neutralisation
 - schema rejection of invented categories and hallucinated dates
 
