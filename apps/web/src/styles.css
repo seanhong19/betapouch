@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens.
+ *
+ * Light is the base declaration; dark redefines only the tokens that move,
+ * under both the OS media query and an explicit [data-theme] stamp so a
+ * manual toggle wins in either direction. Chart colours live here too, so a
+ * chart is written against roles rather than raw hex.
+ */
+:root {
+  color-scheme: light;
+
+  --plane: #f9f9f7;
+  --surface-1: #fcfcfb;
+  --surface-2: #ffffff;
+
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+
+  --hairline: rgba(11, 11, 11, 0.1);
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+
+  /* Categorical slots, in the fixed order they must be assigned. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+
+  /* One-hue sequential ramp for magnitude encoding. */
+  --seq-250: #86b6ef;
+  --seq-350: #5598e7;
+  --seq-450: #2a78d6;
+  --seq-550: #1c5cab;
+  --seq-650: #104281;
+
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --delta-good: #006300;
+
+  --focus-ring: #2a78d6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+
+    --plane: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #232322;
+
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+
+    --hairline: rgba(255, 255, 255, 0.1);
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+
+    --seq-250: #184f95;
+    --seq-350: #256abf;
+    --seq-450: #3987e5;
+    --seq-550: #5598e7;
+    --seq-650: #86b6ef;
+
+    --delta-good: #0ca30c;
+    --focus-ring: #3987e5;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --plane: #0d0d0d;
+  --surface-1: #1a1a19;
+  --surface-2: #232322;
+
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+
+  --hairline: rgba(255, 255, 255, 0.1);
+  --gridline: #2c2c2a;
+  --baseline: #383835;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+
+  --seq-250: #184f95;
+  --seq-350: #256abf;
+  --seq-450: #3987e5;
+  --seq-550: #5598e7;
+  --seq-650: #86b6ef;
+
+  --delta-good: #0ca30c;
+  --focus-ring: #3987e5;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* Safe areas so the bottom nav clears the home indicator on iOS. */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Axis ticks and table columns align; standalone figures do not. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors;
+    border: 1px solid var(--hairline);
+    color: var(--text-primary);
+    background: var(--surface-2);
+    min-height: 44px; /* comfortable touch target */
+  }
+
+  .btn:hover:not(:disabled) {
+    border-color: var(--baseline);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--series-1);
+    border-color: var(--series-1);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .btn-danger {
+    border-color: var(--status-critical);
+    color: var(--status-critical);
+  }
+
+  .field {
+    @apply w-full rounded-lg px-3 py-2 text-sm;
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    color: var(--text-primary);
+    min-height: 44px;
+  }
+
+  .field:focus {
+    border-color: var(--focus-ring);
+  }
+
+  .label {
+    @apply mb-1 block text-xs font-medium;
+    color: var(--text-secondary);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+    border: 1px solid var(--hairline);
+    color: var(--text-secondary);
+  }
+
+  .chip-selected {
+    border-color: var(--series-1);
+    color: var(--text-primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

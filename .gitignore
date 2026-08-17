@@ -20,3 +20,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Vendored at build time from node_modules (see vite.config.ts)
+apps/web/public/ocr/

@@ -119,7 +119,9 @@ export type Expense = z.infer<typeof expenseSchema>;
 /** A draft is what the scanner/AI produces; the user confirms it into an Expense. */
 export const expenseDraftSchema = expenseSchema
   .partial()
-  .extend({ amountMinor: minorUnits.nullable().default(null) });
+  // A draft may have no amount yet — that is the normal state right after a
+  // scan that could not find a total.
+  .extend({ amountMinor: minorUnits.nullable().optional() });
 export type ExpenseDraft = z.infer<typeof expenseDraftSchema>;
 
 export const AI_PROVIDER_KINDS = [

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>BetaPouch — private expense tracking</title>
+    <meta
+      name="description"
+      content="Track expenses from receipts on your own device. Encrypted locally, no account, no server."
+    />
+
+    <!--
+      Content Security Policy.
+
+      script-src has no 'unsafe-inline': the build emits external modules only.
+      'wasm-unsafe-eval' is required by the on-device OCR engine and grants
+      nothing beyond instantiating WebAssembly.
+
+      connect-src has to allow https: because the whole point of BYOK is that
+      the user picks the endpoint — we cannot enumerate it in advance. It is
+      still narrowed to https plus loopback, so a configured endpoint can
+      never be plaintext to a remote host. See docs/SECURITY.md.
+
+      frame-ancestors and X-Frame-Options are ignored in a meta tag; they are
+      set as real headers in deploy/headers.conf.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'wasm-unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' blob: data:;
+        font-src 'self';
+        worker-src 'self' blob:;
+        child-src 'self' blob:;
+        manifest-src 'self';
+        connect-src 'self' blob: data: https: http://localhost:* http://127.0.0.1:*;
+        object-src 'none';
+        base-uri 'none';
+        form-action 'none';
+        frame-src 'none';
+      "
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      BetaPouch runs entirely in your browser and needs JavaScript. Nothing is sent to a server —
+      that is why the work happens on your device.
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
