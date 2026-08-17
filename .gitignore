@@ -23,3 +23,8 @@ Thumbs.db
 
 # Vendored at build time from node_modules (see vite.config.ts)
 apps/web/public/ocr/
+
+# tsc must never emit beside the sources — see the CI guard.
+packages/*/src/**/*.js
+apps/web/src/**/*.js
+apps/mobile/src/**/*.js

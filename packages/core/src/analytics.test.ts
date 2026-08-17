@@ -4,6 +4,7 @@ import {
   buildExpenseSummary,
   filterExpenses,
   granularityFor,
+  pickDisplayCurrency,
   summarisePeriod,
   timeSeries,
   totalsByCategory,
@@ -129,6 +130,46 @@ describe("summarisePeriod", () => {
     });
     expect(summary.changeRatio).toBeNull();
     expect(summary.totalMinor).toBe(0);
+  });
+});
+
+describe("pickDisplayCurrency", () => {
+  it("prefers the user's base currency whenever they have records in it", () => {
+    // The regression: EUR 3,960 minor units > USD 10,500 is false, but ranking
+    // by raw minor units once made EUR win anyway. Minor units from different
+    // currencies are not comparable quantities.
+    expect(pickDisplayCurrency(EXPENSES, "USD")).toBe("USD");
+    expect(pickDisplayCurrency(EXPENSES, "EUR")).toBe("EUR");
+  });
+
+  it("never ranks currencies by unconverted amount", () => {
+    const cheapButBase = [
+      makeExpense({ id: "a", occurredAt: "2025-03-01T10:00:00.000Z", amountMinor: 1, currency: "USD" }),
+      makeExpense({ id: "b", occurredAt: "2025-03-01T10:00:00.000Z", amountMinor: 9_999_999, currency: "JPY" }),
+    ];
+    expect(pickDisplayCurrency(cheapButBase, "USD")).toBe("USD");
+  });
+
+  it("falls back to the most frequently used currency, not the largest total", () => {
+    const noBase = [
+      makeExpense({ id: "a", occurredAt: "2025-03-01T10:00:00.000Z", amountMinor: 100, currency: "GBP" }),
+      makeExpense({ id: "b", occurredAt: "2025-03-02T10:00:00.000Z", amountMinor: 100, currency: "GBP" }),
+      makeExpense({ id: "c", occurredAt: "2025-03-03T10:00:00.000Z", amountMinor: 500_000, currency: "SEK" }),
+    ];
+    expect(pickDisplayCurrency(noBase, "USD")).toBe("GBP");
+  });
+
+  it("is deterministic when counts tie", () => {
+    const tied = [
+      makeExpense({ id: "a", occurredAt: "2025-03-01T10:00:00.000Z", amountMinor: 100, currency: "SEK" }),
+      makeExpense({ id: "b", occurredAt: "2025-03-02T10:00:00.000Z", amountMinor: 900, currency: "GBP" }),
+    ];
+    expect(pickDisplayCurrency(tied, "USD")).toBe("GBP");
+    expect(pickDisplayCurrency([...tied].reverse(), "USD")).toBe("GBP");
+  });
+
+  it("falls back to the base currency when there is nothing at all", () => {
+    expect(pickDisplayCurrency([], "SGD")).toBe("SGD");
   });
 });
 

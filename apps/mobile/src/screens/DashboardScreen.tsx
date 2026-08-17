@@ -3,6 +3,7 @@ import {
   filterExpenses,
   formatMoney,
   granularityFor,
+  pickDisplayCurrency,
   presetRanges,
   summarisePeriod,
   timeSeries,
@@ -27,7 +28,7 @@ export function DashboardScreen({ onAdd }: { onAdd: () => void }) {
   const locale = settings.locale;
 
   const currencies = useMemo(() => totalsByCurrency(expenses), [expenses]);
-  const currency = currencies[0]?.currency ?? settings.baseCurrency;
+  const currency = pickDisplayCurrency(expenses, settings.baseCurrency);
 
   const scoped = useMemo(
     () => filterExpenses(expenses, { from: range.from, to: range.to, currencies: [currency] }),

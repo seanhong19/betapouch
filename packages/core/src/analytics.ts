@@ -233,6 +233,26 @@ export function totalsByCurrency(expenses: Expense[]): { currency: string; total
     .sort((a, b) => b.totalMinor - a.totalMinor);
 }
 
+/**
+ * Which currency the dashboard should lead with.
+ *
+ * Emphatically NOT "the one with the largest total" — comparing raw minor
+ * units across currencies ranks 3,960 JPY above 2,919 USD, which is both
+ * wrong and exactly the cross-currency comparison this module refuses to make
+ * elsewhere. The user's configured base currency wins whenever they have any
+ * records in it; otherwise we fall back to the one they use most *often*,
+ * since a count is the only quantity that is comparable across currencies.
+ */
+export function pickDisplayCurrency(expenses: Expense[], baseCurrency: string): string {
+  const totals = totalsByCurrency(expenses);
+  if (totals.length === 0) return baseCurrency;
+  if (totals.some((entry) => entry.currency === baseCurrency)) return baseCurrency;
+
+  return [...totals].sort(
+    (a, b) => b.count - a.count || a.currency.localeCompare(b.currency),
+  )[0]!.currency;
+}
+
 export interface PeriodSummary {
   currency: string;
   totalMinor: number;

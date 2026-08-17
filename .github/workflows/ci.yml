@@ -28,6 +28,20 @@ jobs:
       - name: Typecheck
         run: pnpm -r typecheck
 
+      # A tsc invocation that emits next to the sources leaves .js files that
+      # `import "./x.js"` then resolves in preference to the .ts — so the suite
+      # would silently test stale compiled snapshots. Catch it before the tests
+      # run, since by then the damage is invisible.
+      - name: Assert no compiled output beside the sources
+        run: |
+          stray=$(find packages/*/src apps/*/src -name "*.js" -not -path "*/node_modules/*" 2>/dev/null || true)
+          if [ -n "$stray" ]; then
+            echo "::error::tsc emitted JavaScript next to the TypeScript sources:"
+            echo "$stray"
+            exit 1
+          fi
+          echo "No stray compiled output."
+
       - name: Test
         run: pnpm -r test
 

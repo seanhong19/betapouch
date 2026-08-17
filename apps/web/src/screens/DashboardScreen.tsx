@@ -3,6 +3,7 @@ import {
   formatMoney,
   formatMoneyCompact,
   granularityFor,
+  pickDisplayCurrency,
   presetRanges,
   sortByOccurredAt,
   summarisePeriod,
@@ -36,8 +37,7 @@ export function DashboardScreen({ onNavigate }: { onNavigate: (tab: "capture" | 
   const locale = settings.locale;
   const currencies = useMemo(() => totalsByCurrency(expenses), [expenses]);
   const [currency, setCurrency] = useState<string | null>(null);
-  const activeCurrency =
-    currency ?? currencies[0]?.currency ?? settings.baseCurrency;
+  const activeCurrency = currency ?? pickDisplayCurrency(expenses, settings.baseCurrency);
 
   const scoped = useMemo(
     () => filterExpenses(expenses, { from: range.from, to: range.to, currencies: [activeCurrency] }),
