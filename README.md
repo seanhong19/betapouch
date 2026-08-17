@@ -30,10 +30,29 @@ nowhere for it to be held.
 
 ## Quick start
 
+Needs **Node 20.19+** and **pnpm 10**. If you do not have pnpm:
+
+```bash
+npm install -g pnpm@10
+```
+
+On Windows, prefer that over `corepack enable` — corepack writes shims into
+`C:\Program Files\nodejs\` and fails with `EPERM` unless the terminal is
+running as Administrator. If you would rather install nothing, prefix every
+command below with `npx`: `npx pnpm@10 install`, `npx pnpm@10 dev`.
+
+Plain `npm install` will not work: this is a pnpm workspace and the packages
+reference each other with the `workspace:*` protocol, which npm does not
+understand.
+
 ```bash
 pnpm install
 pnpm dev          # web app at http://127.0.0.1:5173
 ```
+
+First start takes a few seconds longer than later ones — a build plugin copies
+the OCR engine out of `node_modules` into `apps/web/public/ocr`. That is a local
+file copy, not a download.
 
 Open it, choose a passphrase, and start adding expenses. That is the whole setup.
 
