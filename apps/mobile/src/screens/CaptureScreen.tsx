@@ -1,6 +1,7 @@
 import {
   CATEGORIES,
   CATEGORY_LABELS,
+  mergeDrafts,
   minorToDecimalString,
   parseAmountToMinor,
   suggestCategory,
@@ -115,12 +116,15 @@ export function CaptureScreen({ onDone }: { onDone: () => void }) {
         image: { mimeType: image.attachment.mimeType, dataB64: bytesToBase64(image.bytes) },
       });
 
-      setDraft((current) => ({ ...current, ...outcome.draft }));
-      setMerchant(outcome.draft.merchant ?? "");
-      if (outcome.draft.amountMinor != null) {
-        setAmount(minorToDecimalString(outcome.draft.amountMinor, outcome.draft.currency ?? "USD"));
+      // Merge rather than replace, so a model that read nothing useful cannot
+      // blank what is already on the form.
+      const merged = mergeDrafts({ ...draft, merchant, category }, outcome.draft);
+      setDraft(merged);
+      if (merged.merchant) setMerchant(merged.merchant);
+      if (merged.amountMinor != null) {
+        setAmount(minorToDecimalString(merged.amountMinor, merged.currency ?? "USD"));
       }
-      if (outcome.draft.category) setCategory(outcome.draft.category);
+      if (merged.category) setCategory(merged.category);
       setNotice(`Read by ${resolved.destination ?? "a model on this device"}. Check the amount.`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "That provider could not be reached.");

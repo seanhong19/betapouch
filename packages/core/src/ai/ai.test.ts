@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractedToDraft } from "./index.js";
+import { extractedToDraft, mergeDrafts } from "./index.js";
 import { assertSafeEndpoint, isLoopback, joinUrl, UnsafeEndpointError } from "./endpoint.js";
 import { extractJsonObject, parseExtraction } from "./types.js";
 
@@ -100,5 +100,69 @@ describe("extractedToDraft", () => {
     const draft = extractedToDraft(parseExtraction('{"total":"5.00"}'), "EUR");
     expect(draft.currency).toBe("EUR");
     expect(draft.amountMinor).toBe(500);
+  });
+});
+
+describe("mergeDrafts", () => {
+  const ocrDraft = {
+    merchant: "Whole Foods Market",
+    amountMinor: 2919,
+    currency: "USD",
+    taxMinor: 216,
+    category: "groceries" as const,
+    source: "ocr" as const,
+    reviewed: false,
+  };
+
+  it("never lets an empty model response blank what the parser found", () => {
+    // The exact failure this exists to prevent: a plain spread would wipe the
+    // amount, the merchant and the category.
+    const empty = extractedToDraft(parseExtraction("{}"));
+    const merged = mergeDrafts(ocrDraft, empty);
+    expect(merged.amountMinor).toBe(2919);
+    expect(merged.merchant).toBe("Whole Foods Market");
+    expect(merged.category).toBe("groceries");
+    expect(merged.taxMinor).toBe(216);
+  });
+
+  it("takes the model's values when it actually found something", () => {
+    const better = extractedToDraft(
+      parseExtraction('{"merchant":"Whole Foods","total":"31.40","category":"dining"}'),
+    );
+    const merged = mergeDrafts(ocrDraft, better);
+    expect(merged.amountMinor).toBe(3140);
+    expect(merged.merchant).toBe("Whole Foods");
+    expect(merged.category).toBe("dining");
+  });
+
+  it("does not let a fallback category displace a confident one", () => {
+    const vague = extractedToDraft(parseExtraction('{"total":"10.00"}'));
+    expect(vague.category).toBe("other");
+    expect(mergeDrafts(ocrDraft, vague).category).toBe("groceries");
+  });
+
+  it("still applies 'other' when the base had no better answer", () => {
+    const vague = extractedToDraft(parseExtraction('{"total":"10.00"}'));
+    expect(mergeDrafts({ category: "other" }, vague).category).toBe("other");
+    expect(mergeDrafts({}, vague).category).toBe("other");
+  });
+
+  it("keeps fields the model does not mention", () => {
+    const merged = mergeDrafts({ ...ocrDraft, notes: "reimbursable" }, extractedToDraft(parseExtraction('{"total":"5.00"}')));
+    expect(merged.notes).toBe("reimbursable");
+  });
+
+  it("always marks the result as needing a human check", () => {
+    const merged = mergeDrafts({ ...ocrDraft, reviewed: true }, extractedToDraft(parseExtraction("{}")));
+    expect(merged.reviewed).toBe(false);
+  });
+
+  it("ignores an empty line-item list but takes a populated one", () => {
+    const withItems = extractedToDraft(
+      parseExtraction('{"total":"5.00","lineItems":[{"description":"Tea","total":"5.00"}]}'),
+    );
+    const base = { ...ocrDraft, lineItems: [] };
+    expect(mergeDrafts(base, extractedToDraft(parseExtraction("{}"))).lineItems).toEqual([]);
+    expect(mergeDrafts(base, withItems).lineItems).toHaveLength(1);
   });
 });

@@ -84,6 +84,35 @@ export function extractedToDraft(
   };
 }
 
+/**
+ * Merge an AI-extracted draft onto one the offline parser already produced.
+ *
+ * A plain spread would be wrong: `extractedToDraft` always emits every key, so
+ * a model that failed to find a total would overwrite a perfectly good OCR
+ * amount with `null`, blank the merchant, and reset the category to "other".
+ * "Improve with AI" must never make the draft worse than it was — so a value
+ * from the model only wins when it actually carries information.
+ */
+export function mergeDrafts(base: ExpenseDraft, incoming: ExpenseDraft): ExpenseDraft {
+  const merged: ExpenseDraft = { ...base };
+
+  for (const [key, value] of Object.entries(incoming) as [keyof ExpenseDraft, unknown][]) {
+    if (value === null || value === undefined) continue;
+    if (typeof value === "string" && value.trim() === "") continue;
+    if (Array.isArray(value) && value.length === 0) continue;
+    // "other" is the extractor's way of saying "I don't know" — it should not
+    // displace a category the parser or the user's own history decided on.
+    if (key === "category" && value === "other" && base.category && base.category !== "other") {
+      continue;
+    }
+    Object.assign(merged, { [key]: value });
+  }
+
+  // Anything the model touched still needs a human look.
+  merged.reviewed = false;
+  return merged;
+}
+
 function normaliseCurrency(value: string | null): string | null {
   if (!value) return null;
   const code = value.trim().toUpperCase();

@@ -1,4 +1,5 @@
 import {
+  mergeDrafts,
   parseReceiptText,
   resolveCategory,
   type ExpenseDraft,
@@ -156,9 +157,10 @@ export function CaptureScreen({ onDone }: { onDone: () => void }) {
           : `Sent to ${resolved.destination ?? "this device"}.`,
       );
 
+      // Merge rather than replace: the model must never blank a value the
+      // on-device parser already got right.
       setDraft((current) => ({
-        ...current,
-        ...outcome.draft,
+        ...mergeDrafts(current ?? {}, outcome.draft),
         ocrText: ocrText || current?.ocrText || null,
       }));
       setConfidence(outcome.draft.extractionConfidence ?? null);
